@@ -9,7 +9,105 @@ contributors:
 
 # Prop Decorator
 
-Props are custom attribute/properties exposed publicly on the element that developers can provide values for. Children components should not know about or reference parent components, so Props should be used to pass data down from the parent to the child. Components need to explicitly declare the Props they expect to receive using the `@Prop()` decorator. Props can be a `number`, `string`, `boolean`, or even an `Object` or `Array`. By default, when a member decorated with a `@Prop()` decorator is set, the component will efficiently rerender.
+Props are custom attributes/properties exposed publicly on an HTML element. They allow developers to pass data into a
+component to use. Props are declared on a component using the `@Prop()` decorator, like so:
+
+```tsx
+// First, we import Prop from '@stencil/core'
+import { Component, Prop } from '@stencil/core';
+
+@Component({
+    tag: 'todo-list',
+})
+export class TodoList {
+    // Second, we decorate a class member with @Prop()
+    @Prop() color: string;
+    
+    render() {
+        return <div>The color is {this.color}</div>
+    }
+}
+```
+
+In the example above, `@Prop()` is placed before (decorates) the `color` class member. By adding `@Prop()`, we expose
+`color` as an attribute on the element, which can be set wherever the component is used:
+
+```html
+<!-- Here we use the component in an HTML file -->
+<todo-list color="purple"></todo-list>
+```
+```tsx
+{/* Here we use the component in a TSX file */}
+<todo-list color={"purple"}></todo-list>
+```
+
+In fact, in this example the `TodoList` component is used exactly the same in HTML and TSX! However, in some cases, the
+way props are used differs slightly between HTML and TSX.
+
+## Variable Casing
+
+In the JavaScript ecosystem, it's common to use 'camelCase' when defining variable names. The example component below
+includes two class members that are camelCase - `thingToDo` & `isSelected`.
+
+```tsx
+import { Component, Prop } from '@stencil/core';
+
+@Component({
+    tag: 'todo-list-item',
+})
+export class ToDoListItem {
+  @Prop() thingToDo: string;
+  @Prop() isSelected: boolean;
+}
+```
+
+Both `thingToDo` and `isSelected` are props, because they are decorated with the `@Prop()` decorator. Their usage in
+HTML and TSX is nearly identical. However, in HTML, the attribute must use 'dash-case' like so:
+
+```html
+<todo-list-item thing-to-do="Learn Stencil" is-selected="true"></todo-list-item>
+```
+
+Where in TSX, you set an attribute using camelCase:
+
+```tsx
+<todo-list-item thingToDo="Learn Stencil" isSelected={true}></todo-list-item>
+```
+
+One thing to note is that in the TSX example above, `isSelected` has a value of `true` that is surrounded by curly
+braces, where the HTML version uses double quotes. In the next section, we'll explore this further.
+
+## Types
+
+TODO
+TODO
+TODO
+TODO
+
+## IDK YET
+They can also be accessed via JS from the element.
+
+```tsx
+const todoListElement = document.querySelector('todo-list');
+console.log(todoListElement.myHttpService); // MyHttpService
+console.log(todoListElement.color); // blue
+```
+
+
+Within the `TodoList` class, the Props are accessed via the `this` operator.
+
+```tsx
+logColor() {
+  console.log(this.color)
+}
+```
+
+
+Child components should not know about or reference parent components, so Props should be used to pass data down from 
+the parent to the child. 
+
+Props can be a `number`, `string`, `boolean`, or even an `Object` or `Array`. By default, when a member 
+decorated with a `@Prop()` decorator is set, the component will efficiently rerender.
 
 ```tsx
 // TodoList.tsx
@@ -47,39 +145,11 @@ export class TodoList {
 }
 ```
 
-Within the `TodoList` class, the Props are accessed via the `this` operator.
-
-```tsx
-logColor() {
-  console.log(this.color)
-}
-```
-
-Externally, Props are set on the element.
-
-> In HTML, you must set attributes using dash-case:
-
-```markup
-<todo-list color="blue" favorite-number="24" is-selected="true"></todo-list>
-```
-
-in JSX you set an attribute using camelCase:
-
-```markup
-<todo-list color="blue" favoriteNumber={24} isSelected="true"></todo-list>
-```
-
-They can also be accessed via JS from the element.
-
-```tsx
-const todoListElement = document.querySelector('todo-list');
-console.log(todoListElement.myHttpService); // MyHttpService
-console.log(todoListElement.color); // blue
-```
-
 ## Prop options
 
-The `@Prop(opts?: PropOptions)` decorator accepts an optional argument to specify certain options, such as the `mutability`, the name of the DOM attribute or if the value of the property should or shouldn't be reflected into the DOM.
+The `@Prop(opts?: PropOptions)` decorator accepts an optional argument to specify certain options, such as the 
+`mutability`, the name of the DOM attribute or if the value of the property should or shouldn't be reflected into the 
+DOM.
 
 ```tsx
 export interface PropOptions {
@@ -223,3 +293,63 @@ export class TodoList {
   }
 }
 ```
+
+## Property Values
+
+### Boolean Properties
+
+A property on a Stencil component that has a type of `boolean` may be declared as:
+```tsx
+@Component({
+    tag: 'todo-list-item',
+})
+export class TodoListItem {
+    @Prop() isComplete: boolean;
+    ...
+}
+```
+```html
+<todo-list-item is-complete></todo-list-item>
+```
+```html
+<todo-list-item is-complete="true"></todo-list-item>
+```
+
+```html
+<todo-list-item is-complete="false"></todo-list-item>
+```
+TODO: Cover the cases like '"0"', '"""', '"False"'
+```html
+<todo-list-item></todo-list-item>
+```
+HTML:
+```html
+<todo-list-item is-complete="true"></todo-list-item>
+<todo-list-item is-complete="false"></todo-list-item>
+<todo-list-item is-complete="0"></todo-list-item>
+```
+TS:
+```tsx
+<todo-list-item is-complete=true></todo-list-item>
+<todo-list-item is-complete="false"></todo-list-item>
+<todo-list-item is-complete=false></todo-list-item>
+<todo-list-item is-complete="0"></todo-list-item>
+<todo-list-item is-complete={0}></todo-list-item>
+<todo-list-item is-complete=undefined></todo-list-item>
+<todo-list-item is-complete=null></todo-list-item>
+<todo-list-item is-complete=""></todo-list-item>
+```
+
+
+While `propValue` can reasonably be expected to be of `any` type as far as TypeScript is concerned, it is _not_
+safe to assume that the type of `propValue` (I.E. `typeof propValue`) matches the type derived from `propType`. This
+function provides the capability to parse/coerce a property's value to potentially any other JavaScript type.
+
+Property values represented in TSX preserve their type information. Below, the BigInt 0 is passed to a component.
+This `propValue` will preserve its type information (`typeof propValue === bigint`). Note that is based on the type
+of the value being passed in, not the type declared of the class member decorated with `@prop`.
+```tsx
+<my-cmp prop-val={0n}></my-cmp>
+```
+
+html is always a string via `typeof`, case sensitive (`False`)
